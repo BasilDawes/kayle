@@ -5,15 +5,15 @@ const { servingSize: _, servingsPerContainer: __, ...dailyValueDefaults } = DAIL
 
 // Models available through OpenRouter. All must support vision + JSON output.
 export const MODELS = [
-  "openai/gpt-5.4-mini",
-  "openai/gpt-5.4-nano",
+  "openai/gpt-6-luna",
   "google/gemini-2.5-flash",
-  "anthropic/claude-haiku-4.5",
+  "google/gemini-3.8-flash",
+  "anthropic/claude-haiku-5.5",
 ] as const
 
 export type Model = (typeof MODELS)[number]
 
-const DEFAULT_MODEL: Model = "openai/gpt-5.4-mini"
+const DEFAULT_MODEL: Model = MODELS[0]
 
 export const DEFAULT_MEAL_SUGGESTION_PROMPT =
   "Suggest 3 nutritious, balanced meals following the USDA myplate guidelines. All the items for one meal must come from the same location."
