@@ -65,7 +65,7 @@
         timestamp: Date.now(),
         name: scaledResult.name,
         nutrients: scaledResult.nutrients,
-        imageDataUrl: capturedThumbnail ?? undefined,
+        imageDataUrl: result?.imageDataUrl ?? capturedThumbnail ?? undefined,
         source: scaledResult.source,
         components: scaledResult.components,
       }),
