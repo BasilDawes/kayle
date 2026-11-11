@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
   import { page } from "$app/state"
-  import Camera from "$lib/UI/Camera.svelte"
+  import Camera, { downloadFullRes } from "$lib/UI/Camera.svelte"
   import LoadingOverlay from "$lib/UI/LoadingOverlay.svelte"
   import ResultCard from "$lib/UI/ResultCard.svelte"
   import { processScan } from "$lib/workflows/processScan"
@@ -26,6 +26,7 @@
 
   let cameraState = $state<ScanState>("idle")
   let capturedImage = $state<string | null>(null)
+  let capturedMode = $state<ScanMode | null>(null)
   let diningCourt = $state<MealDescriptor>({
     date: DayOverviewQuery.today(),
     time: DayOverviewQuery.nowTime(),
@@ -40,6 +41,7 @@
   async function handleCapture(photo: string, thumbnail: string, mode: ScanMode) {
     capturedImage = photo
     capturedThumbnail = thumbnail
+    capturedMode = mode
     cameraState = "processing"
     statusMessage = mode === "barcode" ? "Detecting barcode..." : "Analyzing food..."
 
@@ -53,6 +55,10 @@
   }
 
   async function handleConfirm(scaledResult: NutritionInfo) {
+    if (capturedMode === "food" && capturedImage) {
+      downloadFullRes(capturedImage)
+    }
+
     await MealRepository.add(
       $state.snapshot({
         date: DayOverviewQuery.today(),
@@ -71,6 +77,7 @@
     result = null
     capturedImage = null
     capturedThumbnail = null
+    capturedMode = null
     error = ""
     cameraState = "idle"
   }

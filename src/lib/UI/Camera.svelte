@@ -1,3 +1,62 @@
+<script module lang="ts">
+  export function downloadFullRes(source: HTMLCanvasElement | string): void {
+    if (typeof window === "undefined" || typeof document === "undefined") return
+
+    const iso = new Date().toISOString().replace(/[:.]/g, "-")
+    const filename = `kayle-meal-${iso}.jpg`
+
+    const triggerDownload = (blob: Blob) => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    }
+
+    if (typeof source === "string") {
+      if (source.startsWith("blob:")) {
+        const a = document.createElement("a")
+        a.href = source
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        return
+      }
+
+      try {
+        const [header, base64Data] = source.split(",")
+        const mime = header?.match(/:(.*?);/)?.[1] || "image/jpeg"
+        const binary = atob(base64Data)
+        const array = new Uint8Array(binary.length)
+        for (let i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i)
+        }
+        triggerDownload(new Blob([array], { type: mime }))
+      } catch {
+        const a = document.createElement("a")
+        a.href = source
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      }
+      return
+    }
+
+    source.toBlob(
+      (blob) => {
+        if (blob) triggerDownload(blob)
+      },
+      "image/jpeg",
+      0.92,
+    )
+  }
+</script>
+
 <script lang="ts">
   import { onMount, onDestroy, type Snippet } from "svelte"
   import Spinner from "./components/Spinner.svelte"
@@ -55,25 +114,6 @@
   function stopCamera(): void {
     stream?.getTracks().forEach((t) => t.stop())
     stream = null
-  }
-
-  function downloadFullRes(canvas: HTMLCanvasElement): void {
-    const iso = new Date().toISOString().replace(/[:.]/g, "-")
-    const filename = `kayle-meal-${iso}.jpg`
-
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) return
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = filename
-        a.click()
-        URL.revokeObjectURL(url)
-      },
-      "image/jpeg",
-      0.92,
-    )
   }
 
   function createThumbnail(canvas: HTMLCanvasElement): string {
@@ -137,9 +177,6 @@
       } catch (err) {
         console.error("Barcode detection during capture error:", err)
       }
-
-      // Download full-resolution image only if in food mode
-      if (activeMode === "food") downloadFullRes(canvasEl)
 
       // Full-res for AI analysis, thumbnail for storage
       const fullResDataUrl = canvasEl.toDataURL("image/jpeg", 0.92)
