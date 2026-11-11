@@ -1,19 +1,18 @@
-import OpenAI from "openai"
+import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { generateText, Output, type FlexibleSchema } from "ai"
 import { settings } from "$lib/stores/settings.svelte"
 
-function createClient(apiKey: string) {
-  return new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
+function getClient(apiKey: string) {
+  return createOpenRouter({
     apiKey,
-    dangerouslyAllowBrowser: true,
   })
 }
 
-function apiError(error: unknown): Error {
-  if (error instanceof OpenAI.APIError) {
-    return new Error(error.message || `OpenRouter ${error.status ?? "request failed"}`)
-  }
-  return error instanceof Error ? error : new Error(String(error))
+function getModel(apiKey: string) {
+  const client = getClient(apiKey)
+  return client(settings.model, {
+    plugins: [{ id: "response-healing" }],
+  })
 }
 
 /*
@@ -28,77 +27,70 @@ https://developers.openai.com/api/docs/pricing
  */
 
 export async function askAI(apiKey: string, prompt: string): Promise<string> {
-  const client = createClient(apiKey)
+  const model = getModel(apiKey)
+  const { text } = await generateText({
+    model,
+    prompt,
+  })
 
-  try {
-    const response = await client.chat.completions.create({
-      model: settings.model,
-      messages: [{ role: "user", content: prompt }],
-    })
-
-    console.log(response)
-    const content = response.choices[0]?.message?.content
-    if (!content) throw new Error("Empty response from OpenRouter")
-
-    console.log(content)
-    return content
-  } catch (error) {
-    throw apiError(error)
-  }
+  return text
 }
 
-export async function analyzeText(apiKey: string, prompt: string): Promise<any> {
-  const client = createClient(apiKey)
-
-  try {
-    const response = await client.chat.completions.create({
-      model: settings.model,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    })
-
-    console.log(response)
-    const content = response.choices[0]?.message?.content
-    if (!content) throw new Error("Empty response from OpenRouter")
-
-    const data = JSON.parse(content)
-    console.log(data)
-    return data
-  } catch (error) {
-    throw apiError(error)
-  }
+export interface GenerateStructuredOptions<T> {
+  apiKey: string
+  prompt: string
+  schema: FlexibleSchema<T>
+  imageDataUrl?: string
+  schemaName?: string
+  schemaDescription?: string
 }
 
-export async function analyzeImage(
+export async function generateStructured<T>({
+  apiKey,
+  prompt,
+  schema,
+  imageDataUrl,
+  schemaName,
+  schemaDescription,
+}: GenerateStructuredOptions<T>): Promise<T> {
+  const model = getModel(apiKey)
+
+  const { output } = await generateText({
+    model,
+    output: Output.object({
+      schema,
+      name: schemaName,
+      description: schemaDescription,
+    }),
+    messages: [
+      {
+        role: "user",
+        content: imageDataUrl
+          ? [
+              { type: "text", text: prompt },
+              { type: "image", image: imageDataUrl },
+            ]
+          : [{ type: "text", text: prompt }],
+      },
+    ],
+  })
+
+  return output
+}
+
+export async function analyzeText<T>(
+  apiKey: string,
+  prompt: string,
+  schema: FlexibleSchema<T>,
+): Promise<T> {
+  return generateStructured({ apiKey, prompt, schema })
+}
+
+export async function analyzeImage<T>(
   apiKey: string,
   imageDataUrl: string,
   prompt: string,
-): Promise<any> {
-  const client = createClient(apiKey)
-
-  try {
-    const response = await client.chat.completions.create({
-      model: settings.model,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: imageDataUrl } },
-          ],
-        },
-      ],
-      response_format: { type: "json_object" },
-    })
-
-    console.log(response)
-    const content = response.choices[0]?.message?.content
-    if (!content) throw new Error("Empty response from OpenRouter")
-
-    const data = JSON.parse(content)
-    console.log(data)
-    return data
-  } catch (error) {
-    throw apiError(error)
-  }
+  schema: FlexibleSchema<T>,
+): Promise<T> {
+  return generateStructured({ apiKey, prompt, imageDataUrl, schema })
 }
