@@ -37,15 +37,25 @@ export interface FoodAnalysis {
   nutrients: Nutrients
 }
 
-export const ServingAnalysisSchema = z.object({
+export const RawServingItemSchema = z.object({
+  name: z.string().describe("Food item name from menu context"),
+  servings: z.number().describe("Multiple of its serving size consumed"),
+})
+
+export const RawServingAnalysisSchema = z.object({
   servings: z
-    .record(z.string(), z.number())
-    .describe("Map of food items with multiple of its serving size"),
+    .array(RawServingItemSchema)
+    .describe("List of food items and their consumed serving multiple"),
   unknowns: z
     .array(z.string())
     .describe("List of foods and portions consumed not in the menu context"),
 })
-export type ServingAnalysis = z.infer<typeof ServingAnalysisSchema>
+export type RawServingAnalysis = z.infer<typeof RawServingAnalysisSchema>
+
+export interface ServingAnalysis {
+  servings: Record<string, number>
+  unknowns: string[]
+}
 
 export const LLMService = {
   async analyzeFood(
@@ -89,14 +99,24 @@ export const LLMService = {
       "Identify the servings consumed for items in the menu context, and list any unknown foods consumed that aren't in the menu context.",
     ].join("\n")
 
-    return generateStructured({
+    const result = await generateStructured({
       apiKey,
       prompt,
       imageDataUrl,
-      schema: ServingAnalysisSchema,
+      schema: RawServingAnalysisSchema,
       schemaName: "ServingAnalysis",
       schemaDescription: "Servings of menu items and unknown foods",
     })
+
+    const servings: Record<string, number> = {}
+    for (const item of result.servings) {
+      servings[item.name] = item.servings
+    }
+
+    return {
+      servings,
+      unknowns: result.unknowns,
+    }
   },
 
   async suggestMeals(apiKey: string): Promise<string> {
