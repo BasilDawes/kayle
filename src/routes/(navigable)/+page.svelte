@@ -113,9 +113,8 @@
       <div class="flex items-center justify-between gap-3">
         <div>
           <p class="text-xs tracking-[0.2em] text-zinc-500 uppercase">
-            {formatDateLabel(selectedDate)}
+            {titleForDate(selectedDate)}
           </p>
-          <h1 class="text-2xl font-bold text-white">{titleForDate(selectedDate)}</h1>
         </div>
         <div class="flex items-center gap-2">
           <button
