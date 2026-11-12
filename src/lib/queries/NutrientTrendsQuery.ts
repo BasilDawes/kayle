@@ -22,6 +22,15 @@ function addDays(date: Date, amount: number): Date {
   return next
 }
 
+function mondayOf(date: Date): Date {
+  const d = new Date(date)
+  const day = d.getDay()
+  const offset = day === 0 ? -6 : 1 - day
+  d.setDate(d.getDate() + offset)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
 function formatLabel(date: Date): string {
   return date.toLocaleDateString("en-US", {
     weekday: "short",
@@ -75,14 +84,14 @@ export const NutrientTrendsQuery = {
     })
   },
 
-  async forMonths(
+  async forWeeks(
     nutrient: NumericNutrientKey,
-    endMonthDate: Date,
-    numMonths: number = 6,
+    endWeekDate: Date,
+    numWeeks: number = 6,
   ): Promise<NutrientTrendPoint[]> {
-    const end = new Date(endMonthDate)
-    const startDate = new Date(end.getFullYear(), end.getMonth() - (numMonths - 1), 1)
-    const endDate = new Date(end.getFullYear(), end.getMonth() + 1, 0)
+    const end = mondayOf(endWeekDate)
+    const startDate = addDays(end, -7 * (numWeeks - 1))
+    const endDate = addDays(end, 6)
 
     const meals = await MealRepository.getBetweenDates(
       localISODate(startDate),
@@ -105,38 +114,31 @@ export const NutrientTrendsQuery = {
 
     const points: NutrientTrendPoint[] = []
 
-    for (let i = 0; i < numMonths; i++) {
-      const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)
-      const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0)
-
-      const monthLabel = monthStart.toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      })
+    for (let i = 0; i < numWeeks; i++) {
+      const weekStart = addDays(startDate, i * 7)
 
       let sumDailyValues = 0
-      let loggedDaysInMonth = 0
-      const allEntriesInMonth: NutrientContribution[] = []
+      let loggedDaysInWeek = 0
+      const allEntriesInWeek: NutrientContribution[] = []
 
-      const daysCount = monthEnd.getDate()
-      for (let day = 1; day <= daysCount; day++) {
-        const d = new Date(monthStart.getFullYear(), monthStart.getMonth(), day)
+      for (let day = 0; day < 7; day++) {
+        const d = addDays(weekStart, day)
         const isoDate = localISODate(d)
 
         const hasMeals = (mealCountsByDate.get(isoDate) ?? 0) > 0
         if (hasMeals) {
           const nutrients = totalsByDate.get(isoDate) ?? {}
           sumDailyValues += nutrients[nutrient] ?? 0
-          loggedDaysInMonth++
+          loggedDaysInWeek++
 
           const dailyEntries = entriesByDate.get(isoDate) ?? []
-          allEntriesInMonth.push(...dailyEntries)
+          allEntriesInWeek.push(...dailyEntries)
         }
       }
 
       // Group entries by food name and sum values, sorting descending and taking top 15
       const aggregatedMap = new Map<string, number>()
-      for (const entry of allEntriesInMonth) {
+      for (const entry of allEntriesInWeek) {
         aggregatedMap.set(entry.name, (aggregatedMap.get(entry.name) ?? 0) + entry.value)
       }
       const sortedEntries = Array.from(aggregatedMap.entries())
@@ -144,12 +146,12 @@ export const NutrientTrendsQuery = {
         .sort((a, b) => b.value - a.value)
         .slice(0, 15)
 
-      const hasMeals = loggedDaysInMonth > 0
-      const averageValue = hasMeals ? sumDailyValues / loggedDaysInMonth : 0
+      const hasMeals = loggedDaysInWeek > 0
+      const averageValue = hasMeals ? sumDailyValues / loggedDaysInWeek : 0
 
       points.push({
-        date: localISODate(monthStart),
-        label: monthLabel,
+        date: localISODate(weekStart),
+        label: formatLabel(weekStart),
         value: averageValue,
         hasMeals,
         entries: sortedEntries,

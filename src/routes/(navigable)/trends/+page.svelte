@@ -12,7 +12,22 @@
     return d
   }
 
-  let mode = $state<"days" | "months">("days")
+  function mondayOf(date: Date): Date {
+    const d = new Date(date)
+    const day = d.getDay()
+    const offset = day === 0 ? -6 : 1 - day
+    d.setDate(d.getDate() + offset)
+    d.setHours(0, 0, 0, 0)
+    return d
+  }
+
+  function addDays(date: Date, days: number): Date {
+    const d = new Date(date)
+    d.setDate(d.getDate() + days)
+    return d
+  }
+
+  let mode = $state<"days" | "weeks">("days")
   let endDate = $state<Date>(getInitialEndDate())
   const startDate = $derived.by(() => {
     if (mode === "days") {
@@ -20,18 +35,19 @@
       start.setDate(start.getDate() - 6)
       return start
     } else {
-      return new Date(endDate.getFullYear(), endDate.getMonth() - 5, 1)
+      return addDays(endDate, -35)
     }
   })
+  const rangeEndDate = $derived.by(() => (mode === "days" ? endDate : addDays(endDate, 6)))
 
-  function selectMode(newMode: "days" | "months") {
+  function selectMode(newMode: "days" | "weeks") {
     mode = newMode
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     if (newMode === "days") {
       endDate = today
     } else {
-      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      endDate = mondayOf(today)
     }
   }
 
@@ -42,8 +58,8 @@
       endDate = d
     } else {
       const d = new Date(endDate)
-      d.setMonth(d.getMonth() - 1)
-      endDate = new Date(d.getFullYear(), d.getMonth() + 1, 0)
+      d.setDate(d.getDate() - 7)
+      endDate = d
     }
   }
 
@@ -55,8 +71,8 @@
       endDate = d
     } else {
       const d = new Date(endDate)
-      d.setMonth(d.getMonth() + 1)
-      endDate = new Date(d.getFullYear(), d.getMonth() + 1, 0)
+      d.setDate(d.getDate() + 7)
+      endDate = d
     }
   }
 
@@ -67,10 +83,7 @@
     if (mode === "days") {
       return endDate.getTime() < today.getTime()
     } else {
-      return (
-        endDate.getFullYear() < today.getFullYear() ||
-        (endDate.getFullYear() === today.getFullYear() && endDate.getMonth() < today.getMonth())
-      )
+      return endDate.getTime() < mondayOf(today).getTime()
     }
   })
 
@@ -83,13 +96,19 @@
       }
       return `${startStr} – ${endStr}`
     } else {
-      const startStr = startDate.toLocaleDateString("en-US", { month: "short" })
-      const endStr = endDate.toLocaleDateString("en-US", { month: "short" })
+      const startStr = startDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+      const endStr = rangeEndDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
       return `${startStr} – ${endStr}`
     }
   })
 
-  const headerSubtitle = $derived(mode === "days" ? "Past 7 Days" : "Monthly Aggregated")
+  const headerSubtitle = $derived(mode === "days" ? "Past 7 Days" : "Weekly Aggregated")
 
   async function exportMealLog() {
     const useExcel = confirm(
@@ -137,7 +156,7 @@
     return (
       await MealRepository.getBetweenDates(
         startDate.toISOString().split("T")[0],
-        endDate.toISOString().split("T")[0],
+        rangeEndDate.toISOString().split("T")[0],
       )
     )
       .flatMap<{ name: string }>((meal) => meal.components ?? meal)
@@ -216,12 +235,12 @@
         Days
       </button>
       <button
-        class="rounded-full px-3 py-1 text-xs font-semibold transition-all {mode === 'months'
+        class="rounded-full px-3 py-1 text-xs font-semibold transition-all {mode === 'weeks'
           ? 'bg-white text-stone-900 shadow-xs'
           : 'text-stone-500 hover:text-stone-900'}"
-        onclick={() => selectMode("months")}
+        onclick={() => selectMode("weeks")}
       >
-        Months
+        Weeks
       </button>
     </div>
   </div>
