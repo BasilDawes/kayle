@@ -6,10 +6,7 @@
   import MealCard from "$lib/UI/MealCard.svelte"
   import Spinner from "$lib/UI/components/Spinner.svelte"
   import NutritionLabel from "$lib/UI/NutritionLabel.svelte"
-  import { LLMService } from "$lib/services/LLMService"
-  import { settings } from "$lib/stores/settings.svelte"
   import { localISODate } from "$lib/integrations/hfsGraphQL"
-  import Markdown from "svelte-markdown"
   import type { NumericNutrientKey } from "$lib/services/DiningCourtService"
   import { formatNutrientValue } from "$lib/utils/nutrientUnits"
   import { getNutrientBreakdown } from "$lib/utils/nutrientBreakdown"
@@ -17,8 +14,6 @@
 
   let overview = $state<DayOverview | null>(null)
   let loading = $state(true)
-  let suggestedMeal = $state("")
-  let loadingSuggestions = $state(false)
   let selectedDate = $state(DayOverviewQuery.today())
   let fabOpen = $state(false)
 
@@ -69,16 +64,6 @@
     if (!canGoForward) return
     selectedDate = addDays(selectedDate, 1)
     await load()
-  }
-
-  async function loadSuggestedMeals() {
-    loadingSuggestions = true
-    try {
-      suggestedMeal = await LLMService.suggestMeals(settings.openrouterKey)
-    } catch (err) {
-      alert(err)
-    }
-    loadingSuggestions = false
   }
 
   function showNutrientBreakdown(nutrient: NumericNutrientKey, label: string) {
@@ -142,18 +127,6 @@
       </div>
     {:else if overview}
       <!-- Day summary page -->
-      {#if DayOverviewQuery.today() == selectedDate}
-        <button class="mb-2 w-full cursor-pointer border" onclick={loadSuggestedMeals}>
-          Suggest meals
-          {#if loadingSuggestions}
-            <Spinner style="width: 10px; height: 10px" />
-          {/if}
-        </button>
-      {/if}
-      <div class="md">
-        <Markdown source={suggestedMeal} />
-      </div>
-
       {#if overview.meals.length > 0}
         <NutritionLabel
           {...overview.nutrients}
@@ -233,15 +206,3 @@
     </button>
   </div>
 </div>
-
-<style>
-  :global(.md ul) {
-    list-style-type: circle;
-    list-style-position: inside;
-    font-size: small;
-  }
-
-  :global(.md li) {
-    margin-bottom: 0.5rem;
-  }
-</style>

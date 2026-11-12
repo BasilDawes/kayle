@@ -16,6 +16,9 @@ export type Model = (typeof MODELS)[number]
 const DEFAULT_MODEL: Model = MODELS[0]
 
 export const DEFAULT_MEAL_SUGGESTION_PROMPT =
+  `Suggest a nutritious, balanced meals following the USDA myplate guidelines for each of the dining courts (but not on-the-go). All the items for one meal must come from the same location. Prefer suggesting fish, brussel sprouts. Never suggest chicken thighs, pork, shrimp, rice, stir fry, pizza, salads, or anything from the "by request" section. If there are no options, say so, don't make something up. NEVER make ingredient assumptions.`
+
+const OLD_DEFAULT_PROMPT =
   "Suggest 3 nutritious, balanced meals following the USDA myplate guidelines. All the items for one meal must come from the same location."
 
 const KEYS = {
@@ -53,7 +56,8 @@ function loadModel(): Model {
 
 function loadMealSuggestionPrompt(): string {
   const raw = load(KEYS.mealSuggestionPrompt)
-  return raw !== "" ? raw : DEFAULT_MEAL_SUGGESTION_PROMPT
+  if (!raw || raw === OLD_DEFAULT_PROMPT) return DEFAULT_MEAL_SUGGESTION_PROMPT
+  return raw
 }
 
 function createSettings() {

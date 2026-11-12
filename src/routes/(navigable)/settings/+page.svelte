@@ -16,7 +16,6 @@
   let openrouterKey = $state(settings.openrouterKey)
   let offKey = $state(settings.openfoodfactsKey)
   let selectedModel = $state<Model>(settings.model)
-  let mealSuggestionPrompt = $state(settings.mealSuggestionPrompt)
   let showOpenrouter = $state(false)
   let showOff = $state(false)
   let showDailyValues = $state(false)
@@ -160,22 +159,6 @@
           {showOff ? "🙈" : "👁️"}
         </button>
       </div>
-    </div>
-
-    <!-- Meal Suggestion Prompt -->
-    <div class="flex flex-col gap-2">
-      <label class="text-xs tracking-[0.2em] text-zinc-400 uppercase" for="meal-prompt">
-        Meal Suggestion Prompt
-      </label>
-      <p class="text-xs text-zinc-600">Customize the prompt used for suggesting meals.</p>
-      <textarea
-        id="meal-prompt"
-        bind:value={mealSuggestionPrompt}
-        oninput={() => settings.setMealSuggestionPrompt(mealSuggestionPrompt)}
-        placeholder="Suggest 3 nutritious, balanced meals..."
-        rows="3"
-        class="w-full resize-y rounded-xl bg-transparent px-4 py-3 text-sm placeholder-zinc-600 ring-1 ring-zinc-700 outline-none focus:ring-white/30"
-      ></textarea>
     </div>
   </div>
 

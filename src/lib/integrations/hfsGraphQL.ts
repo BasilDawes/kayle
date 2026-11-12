@@ -81,17 +81,27 @@ export async function getMenu(location: MealDescriptor) {
   )
 }
 
-export async function getAllFoods(): Promise<Record<string, string[]>> {
-  const now = {
+export async function getAllFoods(
+  meal: MealDescriptor = {
     name: "all",
     date: DayOverviewQuery.today(),
     time: DayOverviewQuery.nowTime(),
-  } satisfies MealDescriptor
-  const data = await sdk.allFoods({ date: now.date })
+  },
+  courtsToInclude?: string[],
+): Promise<Record<string, string[]>> {
+  const data = await sdk.allFoods({ date: meal.date })
+  const diningCourts = (data.diningCourts ?? []).filter((court) => {
+    if (!court?.name) return false
+    if (courtsToInclude && courtsToInclude.length > 0 && !courtsToInclude.includes(court.name)) {
+      return false
+    }
+    return true
+  })
+
   return Object.fromEntries(
-    data.diningCourts!.map((court) => [
+    diningCourts.map((court) => [
       court?.name,
-      getCurrentMeals(court!.dailyMenu!.meals, now).flatMap((meal) =>
+      getCurrentMeals(court?.dailyMenu?.meals, meal).flatMap((meal) =>
         meal.stations.flatMap((station) => station.items.map((item) => item.item.name)),
       ),
     ]),
