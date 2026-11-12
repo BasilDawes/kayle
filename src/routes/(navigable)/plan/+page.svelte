@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { resolve } from "$app/paths"
-  import { goto } from "$app/navigation"
   import { fly, fade } from "svelte/transition"
   import { DayOverviewQuery } from "$lib/queries/DayOverviewQuery"
   import { MealRepository } from "$lib/repositories/MealRepository"
@@ -43,7 +42,6 @@
     key: MyPlateFoodGroup
     label: string
     icon: string
-    color: string
     badgeBg: string
     badgeBorder: string
   }[] = [
@@ -51,41 +49,36 @@
       key: "fruits",
       label: "Fruits",
       icon: "🍎",
-      color: "text-rose-400",
-      badgeBg: "bg-rose-950/60 text-rose-300",
-      badgeBorder: "border-rose-800/70",
+      badgeBg: "bg-rose-50 text-rose-800",
+      badgeBorder: "border-rose-200",
     },
     {
       key: "vegetables",
       label: "Vegetables",
       icon: "🥦",
-      color: "text-emerald-400",
-      badgeBg: "bg-emerald-950/60 text-emerald-300",
-      badgeBorder: "border-emerald-800/70",
+      badgeBg: "bg-emerald-50 text-emerald-800",
+      badgeBorder: "border-emerald-200",
     },
     {
       key: "grains",
       label: "Grains",
       icon: "🌾",
-      color: "text-amber-400",
-      badgeBg: "bg-amber-950/60 text-amber-300",
-      badgeBorder: "border-amber-800/70",
+      badgeBg: "bg-amber-50 text-amber-800",
+      badgeBorder: "border-amber-200",
     },
     {
       key: "protein",
       label: "Protein",
       icon: "🥩",
-      color: "text-indigo-400",
-      badgeBg: "bg-indigo-950/60 text-indigo-300",
-      badgeBorder: "border-indigo-800/70",
+      badgeBg: "bg-indigo-50 text-indigo-800",
+      badgeBorder: "border-indigo-200",
     },
     {
       key: "dairy",
       label: "Dairy",
       icon: "🥛",
-      color: "text-sky-400",
-      badgeBg: "bg-sky-950/60 text-sky-300",
-      badgeBorder: "border-sky-800/70",
+      badgeBg: "bg-sky-50 text-sky-800",
+      badgeBorder: "border-sky-200",
     },
   ]
 
@@ -295,22 +288,22 @@
 </svelte:head>
 
 <div
-  class="relative flex h-full min-h-0 w-full flex-col overflow-y-auto p-5"
+  class="relative flex h-full min-h-0 w-full flex-col overflow-y-auto bg-stone-50 p-5 text-stone-900"
   style="font-family: 'DM Mono', monospace;"
 >
   <!-- Toast Notification -->
   {#if toastMessage}
     <div
       transition:fly={{ y: -20, duration: 200 }}
-      class="fixed top-4 right-4 left-4 z-50 mx-auto max-w-md rounded-2xl border border-emerald-500/40 bg-emerald-950/95 px-4 py-3 text-xs text-emerald-200 shadow-2xl backdrop-blur-md flex items-center justify-between gap-3"
+      class="fixed top-4 right-4 left-4 z-50 mx-auto max-w-md rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs text-emerald-900 shadow-xl flex items-center justify-between gap-3"
     >
       <div class="flex items-center gap-2">
-        <span class="text-base">✓</span>
-        <span>{toastMessage}</span>
+        <span class="text-base text-emerald-600 font-bold">✓</span>
+        <span class="font-medium">{toastMessage}</span>
       </div>
       <a
         href={resolve("/")}
-        class="shrink-0 rounded-lg bg-emerald-500/20 px-2.5 py-1 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-500/30 transition"
+        class="shrink-0 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 transition"
       >
         View Today →
       </a>
@@ -319,12 +312,12 @@
 
   <!-- Header -->
   <div class="pt-2">
-    <p class="text-xs tracking-[0.2em] text-zinc-500 uppercase">
+    <p class="text-xs font-semibold tracking-[0.2em] text-stone-500 uppercase">
       {formatDateLabel(today)}
     </p>
-    <div class="flex items-center justify-between gap-2">
-      <h1 class="text-2xl font-bold text-white">Meal Plan</h1>
-      <span class="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[10px] tracking-wider text-zinc-400 uppercase">
+    <div class="mt-1 flex items-center justify-between gap-2">
+      <h1 class="text-2xl font-bold text-stone-950">Meal Plan</h1>
+      <span class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold tracking-wider text-stone-600 uppercase shadow-xs">
         USDA MyPlate
       </span>
     </div>
@@ -332,12 +325,12 @@
 
   <!-- API Key Warning if not set -->
   {#if !settings.hasOpenrouter}
-    <div class="mt-4 rounded-2xl border border-amber-500/30 bg-amber-950/30 p-4 text-xs text-amber-200">
+    <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
       <div class="flex items-center justify-between gap-2">
         <span>OpenRouter API Key required to generate meal plans.</span>
         <a
           href={resolve("/settings")}
-          class="rounded-lg bg-amber-500/20 px-3 py-1 font-semibold text-amber-200 hover:bg-amber-500/30 transition"
+          class="rounded-lg bg-amber-200 px-3 py-1 font-semibold text-amber-900 hover:bg-amber-300 transition"
         >
           Settings →
         </a>
@@ -346,22 +339,22 @@
   {/if}
 
   <!-- Planning Parameters Card -->
-  <div class="mt-4 flex flex-col gap-5 rounded-2xl border border-zinc-900 bg-zinc-950/60 p-5">
+  <div class="mt-4 flex flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-xs">
     <!-- Time selector (affects open dining courts) -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <label class="text-xs tracking-[0.2em] text-zinc-400 uppercase" for="planned-time">
+        <label class="text-xs font-semibold tracking-[0.2em] text-stone-500 uppercase" for="planned-time">
           Planned Time
         </label>
-        <span class="text-[11px] text-zinc-500">Affects open dining courts</span>
+        <span class="text-[11px] text-stone-400">Affects open dining courts</span>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <input
           id="planned-time"
           type="time"
           bind:value={plannedTime}
           onchange={onTimeChange}
-          class="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm text-white outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
+          class="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder-stone-400 outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 shadow-2xs"
         />
         <button
           type="button"
@@ -369,7 +362,7 @@
             plannedTime = DayOverviewQuery.nowTime()
             void loadOpenLocations()
           }}
-          class="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-xs text-zinc-400 hover:border-zinc-700 hover:text-white transition"
+          class="rounded-xl border border-stone-300 bg-stone-50 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:border-stone-400 transition"
         >
           Now
         </button>
@@ -379,7 +372,7 @@
     <!-- Dining Courts Selection -->
     <div class="flex flex-col gap-2.5">
       <div class="flex items-center justify-between">
-        <span class="text-xs tracking-[0.2em] text-zinc-400 uppercase">
+        <span class="text-xs font-semibold tracking-[0.2em] text-stone-500 uppercase">
           Dining Courts ({selectedCourts.length}/{openLocations.length})
         </span>
         <div class="flex items-center gap-2">
@@ -387,16 +380,16 @@
             type="button"
             onclick={selectAllCourts}
             disabled={openLocations.length === 0}
-            class="text-[11px] text-zinc-500 hover:text-zinc-300 disabled:opacity-40 transition"
+            class="text-[11px] font-semibold text-stone-500 hover:text-stone-800 disabled:opacity-40 transition"
           >
             All
           </button>
-          <span class="text-zinc-700">|</span>
+          <span class="text-stone-300">|</span>
           <button
             type="button"
             onclick={deselectAllCourts}
             disabled={openLocations.length === 0}
-            class="text-[11px] text-zinc-500 hover:text-zinc-300 disabled:opacity-40 transition"
+            class="text-[11px] font-semibold text-stone-500 hover:text-stone-800 disabled:opacity-40 transition"
           >
             None
           </button>
@@ -404,12 +397,12 @@
       </div>
 
       {#if loadingLocations}
-        <div class="flex items-center gap-2 py-2 text-xs text-zinc-500">
+        <div class="flex items-center gap-2 py-2 text-xs text-stone-500">
           <Spinner style="width: 12px; height: 12px" />
           <span>Checking open locations...</span>
         </div>
       {:else if openLocations.length === 0}
-        <div class="rounded-xl border border-zinc-900 bg-zinc-900/40 p-4 text-center text-xs text-zinc-500">
+        <div class="rounded-xl border border-stone-200 bg-stone-50 p-4 text-center text-xs text-stone-500">
           No dining courts are open at {plannedTime}. Try changing the planned time above.
         </div>
       {:else}
@@ -420,10 +413,10 @@
               type="button"
               onclick={() => toggleCourt(court.name)}
               class="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs transition-all {isSelected
-                ? 'border-white bg-white text-zinc-950 font-semibold shadow-sm'
-                : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'}"
+                ? 'border-stone-900 bg-stone-900 text-white font-semibold shadow-xs'
+                : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-300 hover:bg-white'}"
             >
-              <span>{isSelected ? "✓" : "+"}</span>
+              <span class="text-[11px]">{isSelected ? "✓" : "+"}</span>
               <span>{court.name}</span>
             </button>
           {/each}
@@ -432,23 +425,23 @@
     </div>
 
     <!-- Custom Prompt Accordion -->
-    <div class="border-t border-zinc-900 pt-3">
+    <div class="border-t border-stone-200 pt-3">
       <button
         type="button"
         onclick={() => (promptOpen = !promptOpen)}
-        class="flex w-full items-center justify-between text-xs tracking-[0.15em] text-zinc-400 uppercase hover:text-zinc-200 transition"
+        class="flex w-full items-center justify-between text-xs font-semibold tracking-[0.15em] text-stone-600 uppercase hover:text-stone-900 transition"
       >
         <span class="flex items-center gap-1.5">
           <span>⚙ Custom Prompt</span>
         </span>
-        <span class="text-xs text-zinc-600 transition-transform duration-200" class:rotate-180={promptOpen}>
+        <span class="text-xs text-stone-400 transition-transform duration-200" class:rotate-180={promptOpen}>
           ▼
         </span>
       </button>
 
       {#if promptOpen}
         <div transition:fade={{ duration: 150 }} class="mt-3 flex flex-col gap-2">
-          <p class="text-[11px] text-zinc-500">
+          <p class="text-[11px] text-stone-500">
             Customize nutritional rules, dietary preferences, or items to exclude.
           </p>
           <textarea
@@ -456,13 +449,13 @@
             oninput={updatePrompt}
             rows="4"
             placeholder="Suggest balanced meals..."
-            class="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-xs leading-relaxed text-zinc-200 placeholder-zinc-600 outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
+            class="w-full resize-y rounded-xl border border-stone-300 bg-stone-50/50 p-3 text-xs leading-relaxed text-stone-900 placeholder-stone-400 outline-none focus:border-stone-500 focus:bg-white focus:ring-1 focus:ring-stone-500 shadow-2xs"
           ></textarea>
           <div class="flex justify-end">
             <button
               type="button"
               onclick={resetPromptToDefault}
-              class="text-[11px] text-zinc-500 hover:text-zinc-300 transition"
+              class="text-[11px] font-semibold text-stone-500 hover:text-stone-800 transition underline decoration-stone-300"
             >
               Reset to default
             </button>
@@ -476,7 +469,7 @@
       type="button"
       onclick={generatePlan}
       disabled={loadingPlan || selectedCourts.length === 0 || !settings.hasOpenrouter}
-      class="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-xs font-semibold tracking-wider text-zinc-950 uppercase shadow-lg transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+      class="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3.5 text-xs font-semibold tracking-wider text-white uppercase shadow-sm hover:bg-stone-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 transition"
     >
       {#if loadingPlan}
         <Spinner style="width: 14px; height: 14px" />
@@ -489,61 +482,61 @@
 
   <!-- Plan Error Alert -->
   {#if planError}
-    <div class="mt-4 rounded-2xl border border-red-500/30 bg-red-950/30 p-4 text-xs text-red-300">
-      <p class="font-semibold text-red-200 mb-1">Failed to generate plan</p>
+    <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-900">
+      <p class="font-bold text-red-950 mb-1">Failed to generate plan</p>
       <p class="leading-relaxed">{planError}</p>
       <button
         type="button"
         onclick={generatePlan}
-        class="mt-3 rounded-lg border border-red-700 bg-red-900/40 px-3 py-1.5 text-[11px] font-semibold text-red-200 hover:bg-red-800/40 transition"
+        class="mt-3 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-red-900 hover:bg-red-50 transition"
       >
         Try Again
       </button>
     </div>
   {/if}
 
-  <!-- Loading Overlay Card -->
+  <!-- Loading State Card -->
   {#if loadingPlan}
-    <div class="mt-6 flex flex-col items-center justify-center gap-3 rounded-2xl border border-zinc-900 bg-zinc-950/40 py-12 text-center">
+    <div class="mt-6 flex flex-col items-center justify-center gap-3 rounded-2xl border border-stone-200 bg-white py-12 text-center shadow-xs">
       <Spinner style="width: 28px; height: 28px" />
-      <p class="text-sm font-semibold text-zinc-300">Finding the best USDA MyPlate combinations...</p>
-      <p class="text-xs text-zinc-600">Analyzing menus for {selectedCourts.length} dining courts</p>
+      <p class="text-sm font-bold text-stone-800">Finding the best USDA MyPlate combinations...</p>
+      <p class="text-xs text-stone-500">Analyzing menus for {selectedCourts.length} dining courts</p>
     </div>
   {/if}
 
   <!-- Plan Results (Rich Cards) -->
   {#if !loadingPlan && planResult}
     <div class="mt-6 flex flex-col gap-6">
-      <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
-        <span class="text-xs tracking-[0.2em] text-zinc-500 uppercase">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2">
+        <span class="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">
           Recommendations ({planResult.locations.length} Locations)
         </span>
-        <span class="text-xs text-zinc-500">{plannedTime}</span>
+        <span class="text-xs font-semibold text-stone-600">{plannedTime}</span>
       </div>
 
       {#each planResult.locations as location (location.location)}
         <!-- Rich Card for Each Location -->
-        <div class="flex flex-col gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-5 shadow-xl">
+        <div class="flex flex-col gap-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-xs">
           <!-- Location Header -->
-          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+          <div class="flex items-center justify-between border-b border-stone-200 pb-3">
             <div class="flex items-center gap-2">
               <span class="text-lg">🏛️</span>
-              <h2 class="text-base font-bold text-white tracking-wide">{location.location}</h2>
+              <h2 class="text-base font-bold text-stone-950 tracking-wide">{location.location}</h2>
             </div>
-            <span class="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-0.5 text-[11px] font-semibold text-zinc-400">
+            <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-semibold text-stone-600">
               {location.options.length} {location.options.length === 1 ? "Option" : "Options"}
             </span>
           </div>
 
           {#if location.notes}
-            <div class="rounded-xl border border-zinc-800/60 bg-zinc-900/40 px-3 py-2 text-xs text-zinc-400">
+            <div class="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600">
               ℹ {location.notes}
             </div>
           {/if}
 
           <!-- Multiple Options for this Location -->
           {#if location.options.length === 0}
-            <p class="py-4 text-center text-xs text-zinc-500">
+            <p class="py-4 text-center text-xs text-stone-500">
               No options meeting guidelines found for this location.
             </p>
           {:else}
@@ -553,52 +546,52 @@
                 {@const isAddingThis = addingToLogOption === `${location.location}-${option.title}`}
 
                 <!-- Option Subcard -->
-                <div class="flex flex-col gap-3.5 rounded-2xl border border-zinc-800/70 bg-zinc-900/50 p-4 transition hover:border-zinc-700">
+                <div class="flex flex-col gap-3.5 rounded-2xl border border-stone-200 bg-stone-50/40 p-4 transition hover:border-stone-300 hover:bg-stone-50/70 shadow-2xs">
                   <!-- Option Title & Completeness -->
                   <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0 flex-1">
                       <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                        <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider">
                           Option {idx + 1}
                         </span>
                         {#if fulfilledCount === 5}
-                          <span class="rounded-full bg-emerald-950/80 border border-emerald-700/60 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                          <span class="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
                             ★ 5/5 Food Groups
                           </span>
                         {:else}
-                          <span class="rounded-full bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                          <span class="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
                             {fulfilledCount}/5 Food Groups
                           </span>
                         {/if}
                       </div>
-                      <h3 class="mt-1 text-sm font-bold text-white leading-snug">
+                      <h3 class="mt-1 text-sm font-bold text-stone-900 leading-snug">
                         {option.title}
                       </h3>
                     </div>
                   </div>
 
                   <!-- Description -->
-                  <p class="text-xs leading-relaxed text-zinc-400">
+                  <p class="text-xs leading-relaxed text-stone-600">
                     {option.description}
                   </p>
 
                   <!-- MyPlate 5 Food Groups Indicator Bar -->
-                  <div class="flex flex-col gap-1.5 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-3">
-                    <span class="text-[10px] font-bold tracking-[0.15em] text-zinc-500 uppercase">
+                  <div class="flex flex-col gap-1.5 rounded-xl border border-stone-200 bg-white p-3 shadow-2xs">
+                    <span class="text-[10px] font-bold tracking-[0.15em] text-stone-500 uppercase">
                       MyPlate Food Groups Fulfilled
                     </span>
                     <div class="flex flex-wrap gap-1.5 pt-0.5">
                       {#each ALL_MYPLATE_GROUPS as group (group.key)}
                         {@const isFulfilled = option.foodGroupsFulfilled?.includes(group.key)}
                         <span
-                          class="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-medium transition {isFulfilled
-                            ? `${group.badgeBg} ${group.badgeBorder} shadow-sm font-semibold`
-                            : 'border-zinc-800 bg-zinc-900/50 text-zinc-600 opacity-60 line-through'}"
+                          class="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] transition {isFulfilled
+                            ? `${group.badgeBg} ${group.badgeBorder} font-semibold shadow-xs`
+                            : 'border-stone-200 bg-stone-100 text-stone-400 line-through opacity-70'}"
                         >
                           <span class="text-xs">{group.icon}</span>
                           <span>{group.label}</span>
                           {#if isFulfilled}
-                            <span class="text-[10px] text-emerald-400">✓</span>
+                            <span class="text-[10px] font-bold text-emerald-600">✓</span>
                           {/if}
                         </span>
                       {/each}
@@ -607,24 +600,24 @@
 
                   <!-- Items Included in this Meal -->
                   <div class="flex flex-col gap-1.5">
-                    <span class="text-[10px] font-bold tracking-[0.15em] text-zinc-500 uppercase">
+                    <span class="text-[10px] font-bold tracking-[0.15em] text-stone-500 uppercase">
                       Menu Items
                     </span>
                     <div class="flex flex-col gap-1.5">
                       {#each option.items as item (item.name)}
-                        <div class="flex items-center justify-between gap-2 rounded-xl border border-zinc-800/60 bg-zinc-950/40 px-3 py-2 text-xs">
+                        <div class="flex items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white px-3 py-2 text-xs shadow-2xs">
                           <div class="flex items-center gap-2 min-w-0 flex-1">
-                            <span class="text-zinc-400">•</span>
-                            <span class="truncate font-medium text-zinc-200">{item.name}</span>
+                            <span class="text-stone-400">•</span>
+                            <span class="truncate font-semibold text-stone-800">{item.name}</span>
                             {#if item.portion}
-                              <span class="shrink-0 text-[11px] text-zinc-500">({item.portion})</span>
+                              <span class="shrink-0 text-[11px] text-stone-500">({item.portion})</span>
                             {/if}
                           </div>
                           <div class="flex shrink-0 items-center gap-1">
                             {#each item.foodGroups as fg}
                               {@const meta = getGroupMeta(fg)}
                               {#if meta}
-                                <span class="rounded-md border {meta.badgeBorder} {meta.badgeBg} px-1.5 py-0.5 text-[10px]">
+                                <span class="rounded-md border {meta.badgeBorder} {meta.badgeBg} px-1.5 py-0.5 text-[10px] font-medium">
                                   {meta.icon} {meta.label}
                                 </span>
                               {/if}
@@ -641,7 +634,7 @@
                       type="button"
                       onclick={() => handleAddToLog(location.location, option)}
                       disabled={isAddingThis}
-                      class="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-zinc-950 shadow-md transition hover:bg-zinc-200 active:scale-[0.99] disabled:opacity-60"
+                      class="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-stone-800 active:scale-[0.99] disabled:opacity-60"
                     >
                       {#if isAddingThis}
                         <Spinner style="width: 12px; height: 12px" />
@@ -664,8 +657,8 @@
   {#if !loadingPlan && !planResult}
     <div class="mt-8 flex flex-col items-center justify-center gap-3 py-10 text-center">
       <span class="text-5xl">🍽️</span>
-      <h3 class="text-sm font-bold text-zinc-300">Plan Balanced Meals with USDA MyPlate</h3>
-      <p class="max-w-xs text-xs leading-relaxed text-zinc-500">
+      <h3 class="text-sm font-bold text-stone-800">Plan Balanced Meals with USDA MyPlate</h3>
+      <p class="max-w-xs text-xs leading-relaxed text-stone-500">
         Choose your planned meal time and dining courts, then tap "Generate Meal Plan" to see balanced options tailored to current dining court menus.
       </p>
     </div>
