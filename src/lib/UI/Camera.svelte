@@ -95,7 +95,8 @@
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "environment",
-          // TODO: why is this landscape on my Pixel Chrome?
+          width: { ideal: 900 },
+          height: { ideal: 1200 },
           aspectRatio: { ideal: 3 / 4 },
         },
         audio: false,
