@@ -59,10 +59,12 @@
       downloadFullRes(capturedImage)
     }
 
+    const timestamp = new Date(diningCourt.date + "T" + diningCourt.time + ":00").getTime()
+
     await MealRepository.add(
       $state.snapshot({
-        date: DayOverviewQuery.today(),
-        timestamp: Date.now(),
+        date: diningCourt.date,
+        timestamp,
         name: scaledResult.name,
         nutrients: scaledResult.nutrients,
         imageDataUrl: result?.imageDataUrl ?? capturedThumbnail ?? undefined,
