@@ -18,7 +18,7 @@
     endDate,
   }: {
     nutrient: NumericNutrientKey
-    mode: "days" | "months"
+    mode: "days" | "weeks"
     endDate: Date
   } = $props()
 
@@ -45,9 +45,9 @@
       if (!loggedDays.length) return 0
       return loggedDays.reduce((sum, point) => sum + point.value, 0) / loggedDays.length
     } else {
-      const loggedMonths = trendPoints.filter((point) => point.hasMeals)
-      if (!loggedMonths.length) return 0
-      return loggedMonths.reduce((sum, point) => sum + point.value, 0) / loggedMonths.length
+      const loggedWeeks = trendPoints.filter((point) => point.hasMeals)
+      if (!loggedWeeks.length) return 0
+      return loggedWeeks.reduce((sum, point) => sum + point.value, 0) / loggedWeeks.length
     }
   })
   const peak = $derived(Math.max(...values, 0))
@@ -63,7 +63,7 @@
     ]
   }
 
-  async function load(currentMode: "days" | "months", currentEndDate: Date) {
+  async function load(currentMode: "days" | "weeks", currentEndDate: Date) {
     const loadId = ++currentLoadId
     loading = true
     error = ""
@@ -72,7 +72,7 @@
       if (currentMode === "days") {
         points = await NutrientTrendsQuery.forDays(nutrient, currentEndDate)
       } else {
-        points = await NutrientTrendsQuery.forMonths(nutrient, currentEndDate)
+        points = await NutrientTrendsQuery.forWeeks(nutrient, currentEndDate)
       }
       if (loadId === currentLoadId) {
         trendPoints = points
