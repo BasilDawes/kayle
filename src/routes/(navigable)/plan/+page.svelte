@@ -586,10 +586,11 @@
                     </span>
                     <div class="flex flex-col gap-1.5">
                       {#each option.items as item (item.name)}
-                        <div class="flex items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white px-3 py-2 text-xs shadow-2xs">
+                        {@const fgMeta = getGroupMeta(item.foodGroups[0])}
+                        <div class="flex items-center justify-between gap-2 rounded-xl border {meta ? meta.badgeBorder : 'border-stone-200/80'} {meta ? meta.badgeBg : 'bg-white'} px-3 py-2 text-xs shadow-2xs">
                           <div class="flex items-center gap-2 min-w-0 flex-1">
                             <span class="text-stone-400">•</span>
-                            <span class="truncate font-semibold text-stone-800">{item.name}</span>
+                            <span class="truncate font-semibold" class:text-stone-800={!meta}>{meta?.icon} {item.name}</span>
                           </div>
                         </div>
                       {/each}
