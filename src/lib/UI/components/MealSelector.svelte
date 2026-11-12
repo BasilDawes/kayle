@@ -70,14 +70,6 @@
   class="pointer-events-auto flex items-center rounded-3xl border border-white/10 bg-black/45 p-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur-md"
   style="font-family: 'DM Mono', monospace;"
 >
-  <button
-    onclick={() => (diningCourt.name = "")}
-    disabled={!diningCourt.name}
-    class="mr-2 shrink-0 rounded-full p-2.5 text-sm text-white transition-colors hover:border-white/25 hover:bg-white/10 disabled:cursor-not-allowed disabled:text-white/35"
-  >
-    ❌
-  </button>
-
   <input
     type="date"
     bind:value={diningCourt.date}
@@ -102,4 +94,14 @@
       <option class="bg-black/45" value={court.name}>{court.name}</option>
     {/each}
   </select>
+
+  {#if diningCourt.name !== ""}
+    <button
+      onclick={() => (diningCourt.name = "")}
+      disabled={!diningCourt.name}
+      class="mr-2 shrink-0 rounded-full p-2.5 text-sm text-white transition-colors hover:border-white/25 hover:bg-white/10 disabled:cursor-not-allowed disabled:text-white/35"
+    >
+      ❌
+    </button>
+  {/if}
 </div>

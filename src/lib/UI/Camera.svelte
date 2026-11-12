@@ -95,6 +95,7 @@
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "environment",
+          // TODO: why is this landscape on my Pixel Chrome?
           aspectRatio: { ideal: 3 / 4 },
         },
         audio: false,
@@ -253,7 +254,7 @@
         <button class="rounded-full bg-amber-50 p-1">+ context</button>
       {/if}
       <div class="flex flex-row items-center gap-4">
-        <a href={resolve("/")} class="size-8 text-2xl">↩️</a>
+        <a href={resolve("/")} class="size-8 text-2xl">🔙</a>
         <!-- Shutter button — centered -->
         <button
           onclick={capture}
