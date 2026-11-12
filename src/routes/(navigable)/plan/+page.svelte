@@ -554,15 +554,19 @@
                         <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider">
                           Option {idx + 1}
                         </span>
-                        {#if fulfilledCount === 5}
-                          <span class="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                            ★ 5/5 Food Groups
-                          </span>
-                        {:else}
-                          <span class="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
-                            {fulfilledCount}/5 Food Groups
-                          </span>
-                        {/if}
+                        {#each ALL_MYPLATE_GROUPS as group (group.key)}
+                          {@const isFulfilled = option.foodGroupsFulfilled?.includes(group.key)}
+                          {#if !isFulfilled}
+                            <span
+                              class="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] transition {isFulfilled
+                                ? `${group.badgeBg} ${group.badgeBorder} font-semibold shadow-xs`
+                                : 'border-stone-200 bg-stone-100 text-stone-400 line-through opacity-70'}"
+                            >
+                              <span class="text-xs">{group.icon}</span>
+                              <span>{group.label}</span>
+                            </span>
+                          {/if}
+                        {/each}
                       </div>
                       <h3 class="mt-1 text-sm font-bold text-stone-900 leading-snug">
                         {option.title}
@@ -575,29 +579,6 @@
                     {option.description}
                   </p>
 
-                  <!-- MyPlate 5 Food Groups Indicator Bar -->
-                  <div class="flex flex-col gap-1.5 rounded-xl border border-stone-200 bg-white p-3 shadow-2xs">
-                    <span class="text-[10px] font-bold tracking-[0.15em] text-stone-500 uppercase">
-                      MyPlate Food Groups Fulfilled
-                    </span>
-                    <div class="flex flex-wrap gap-1.5 pt-0.5">
-                      {#each ALL_MYPLATE_GROUPS as group (group.key)}
-                        {@const isFulfilled = option.foodGroupsFulfilled?.includes(group.key)}
-                        <span
-                          class="flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] transition {isFulfilled
-                            ? `${group.badgeBg} ${group.badgeBorder} font-semibold shadow-xs`
-                            : 'border-stone-200 bg-stone-100 text-stone-400 line-through opacity-70'}"
-                        >
-                          <span class="text-xs">{group.icon}</span>
-                          <span>{group.label}</span>
-                          {#if isFulfilled}
-                            <span class="text-[10px] font-bold text-emerald-600">✓</span>
-                          {/if}
-                        </span>
-                      {/each}
-                    </div>
-                  </div>
-
                   <!-- Items Included in this Meal -->
                   <div class="flex flex-col gap-1.5">
                     <span class="text-[10px] font-bold tracking-[0.15em] text-stone-500 uppercase">
@@ -609,19 +590,6 @@
                           <div class="flex items-center gap-2 min-w-0 flex-1">
                             <span class="text-stone-400">•</span>
                             <span class="truncate font-semibold text-stone-800">{item.name}</span>
-                            {#if item.portion}
-                              <span class="shrink-0 text-[11px] text-stone-500">({item.portion})</span>
-                            {/if}
-                          </div>
-                          <div class="flex shrink-0 items-center gap-1">
-                            {#each item.foodGroups as fg}
-                              {@const meta = getGroupMeta(fg)}
-                              {#if meta}
-                                <span class="rounded-md border {meta.badgeBorder} {meta.badgeBg} px-1.5 py-0.5 text-[10px] font-medium">
-                                  {meta.icon} {meta.label}
-                                </span>
-                              {/if}
-                            {/each}
                           </div>
                         </div>
                       {/each}
